@@ -27,6 +27,7 @@ namespace ContactManager
         private string accountsDirPath;
         private string accountsFilePath;
         private List<Account>? accounts;
+        public Account? sessionUser {get; set;}
 
         public LoginWindow()
         {
@@ -38,19 +39,7 @@ namespace ContactManager
             string jsonString = File.ReadAllText(this.accountsFilePath);
             this.accounts = JsonConvert.DeserializeObject<List<Account>>(jsonString);
         }
-        private bool isAccountAvailable(Account newAcc)
-        {
-            if (this.accounts == null)
-                return false;
 
-            foreach (var acc in this.accounts)
-            {
-                if (acc.login == newAcc.login)
-                    return false;
-            }
-
-            return true;
-        }
         private void ShowSignUp(object sender, RoutedEventArgs e)
         {
             LoginPanel.Visibility = Visibility.Collapsed;
@@ -60,6 +49,7 @@ namespace ContactManager
             PasswordFieldSignUp.Password = string.Empty;
             EmailFieldSignUp.Text = string.Empty;
         }
+
         private void ShowLogin(object sender, RoutedEventArgs e)
         {
             LoginPanel.Visibility = Visibility.Visible;
@@ -71,29 +61,17 @@ namespace ContactManager
 
         private void Login(object sender, RoutedEventArgs e)
         {
-            bool accExists = false;
-            if (this.accounts == null)
-                return;
+            Account acc = new Account(LoginField.Text, PasswordField.Password, null);
 
-            foreach (var acc in this.accounts)
-            {
-                if (acc == null) continue;
-
-                if (acc.Matches(LoginField.Text.ToString(), PasswordField.Password.ToString()))
-                {
-                    accExists = true;
-                    break;
-                }
-            }
-            if (!accExists)
+            if (!acc.canLogIn(this.accounts))
             {
                 ShowLogin(sender, e);
                 MessageBox.Show("Login Failed");
                 return;
             }
 
-            MessageBox.Show("Login Succesfull");
             this.Close();
+            sessionUser = acc;
         }
 
         private void SignUp(object sender, RoutedEventArgs e)
@@ -106,7 +84,7 @@ namespace ContactManager
                 MessageBox.Show("Error", "Invalid Field");
                 return;
             }
-            if (!isAccountAvailable(user))
+            if (!user.isAvailable(this.accounts))
             {
                 MessageBox.Show("Error", "Account Taken");
                 return;

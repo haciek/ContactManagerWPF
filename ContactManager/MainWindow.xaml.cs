@@ -28,8 +28,39 @@ namespace ContactManager {
         {
             InitializeComponent();
             loginWin.ShowDialog();
+            Account? user = loginWin.sessionUser;
+            
+            if (user == null)
+                this.Close();
+
+            //List<Contact> contacts = new List<Contact>();
+            //contacts.Add(new Contact() { name = "John" } );
+            
+            //ContactList.ItemsSource = contacts;
+            List<ListBoxItem> listItems = new List<ListBoxItem>();
+            List<Contact> contacts = new List<Contact>();
+            contacts.Add(new Contact() { name = "John" });
+            contacts.Add(new Contact() { name = "Mark" });
+            foreach (Contact contact in contacts)
+            {
+                listItems.Add(new ListBoxItem() { Content = contact.name });
+            }
+
+            ContactList.ItemsSource = listItems;
+
+            //listItems.Add(new ListBoxItem() { })
+
 
         }
 
+        private void DisplayContact(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ContactList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+             
+        }
     }
 }
