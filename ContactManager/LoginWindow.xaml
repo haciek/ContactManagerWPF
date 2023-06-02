@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ContactManager"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="720" Width="1080">
+        Title="LoginWindow" Height="200" Width="340">
     <Grid Margin="10px" >
         <Border x:Name="LoginPanel" Width="320" Height="160" Visibility="Visible">
             <Grid  Width="300" Height="140" >
@@ -32,7 +32,8 @@
                     Password:</TextBlock>
                 <PasswordBox x:Name="PasswordField"
                          Grid.Row="1" 
-                         Grid.Column="1" />
+                         Grid.Column="1" 
+                         PasswordChanged="OnPasswordFieldChange"/>
 
                 <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="1" Margin="8">
                     <Button x:Name="LoginBtn"

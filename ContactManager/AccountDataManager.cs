@@ -16,7 +16,7 @@ namespace ContactManager
         private string AccountDataPath;
         private string AccountDataJson;
         private List<Account>? AccountList = new List<Account>();
-        private Account? SessionUser { get; set; }
+        private Account? SessionAccount { get; set; }
         public AccountDataManager() {
             string AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
@@ -25,7 +25,7 @@ namespace ContactManager
                 Directory.CreateDirectory(MainDataDir);
 
             AccountDataPath = Path.Combine(MainDataDir, "Accounts.json");
-            if (File.Exists(AccountDataPath))
+            if (!File.Exists(AccountDataPath))
                 File.Create(AccountDataPath).Close();
 
             AccountDataJson = File.ReadAllText(AccountDataPath);
@@ -47,6 +47,15 @@ namespace ContactManager
             SaveAccounts();
         }
 
+        public bool isAvailable(Account account)
+        {
+            return AccountList == null || AccountList.Contains(account);
+        }
+
+        public void SetSessionAccount(Account account)
+        {
+            SessionAccount = account;
+        }
         private void SaveAccounts()
         {
             AccountDataJson = JsonConvert.SerializeObject(AccountList);

@@ -24,20 +24,12 @@ namespace ContactManager
 
     public partial class LoginWindow : Window
     {
-        private string accountsDirPath;
-        private string accountsFilePath;
-        private List<Account>? accounts;
-        public Account? sessionUser {get; set;}
-
+        public Account? sessionUser { get; set; }
+        private AccountDataManager AccountManager;
         public LoginWindow()
         {
             InitializeComponent();
-            this.accountsDirPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            // TODO: check if file exists
-            this.accountsFilePath = System.IO.Path.Combine(this.accountsDirPath, "file.json");
-
-            string jsonString = File.ReadAllText(this.accountsFilePath);
-            this.accounts = JsonConvert.DeserializeObject<List<Account>>(jsonString);
+            AccountManager = new AccountDataManager();
         }
 
         private void ShowSignUp(object sender, RoutedEventArgs e)
@@ -61,44 +53,48 @@ namespace ContactManager
 
         private void Login(object sender, RoutedEventArgs e)
         {
-            Account acc = new Account(LoginField.Text, PasswordField.Password, null);
+            Account account = new Account(LoginField.Text, PasswordField.Password);
 
-            if (!acc.canLogIn(this.accounts))
+            if (!AccountManager.isAvailable(account))
             {
                 ShowLogin(sender, e);
                 MessageBox.Show("Login Failed");
                 return;
             }
-
+            AccountManager.SetSessionAccount(account);
             this.Close();
-            sessionUser = acc;
         }
 
         private void SignUp(object sender, RoutedEventArgs e)
         {
             ShowLogin(sender, e);
-            Account user = new(LoginFieldSignUp.Text, PasswordFieldSignUp.Password, EmailFieldSignUp.Text);
-            if (!user.isValid())
+            Account account = new(LoginFieldSignUp.Text, PasswordFieldSignUp.Password);
+            if (!account.isValid())
             {
                 ShowSignUp(sender, e);
                 MessageBox.Show("Error", "Invalid Field");
                 return;
             }
-            if (!user.isAvailable(this.accounts))
+            if (AccountManager.isAvailable(account))
             {
                 MessageBox.Show("Error", "Account Taken");
                 return;
             }
 
-            if (this.accounts != null)
-            {
-                this.accounts.Add(user);
-                string jsonString = JsonConvert.SerializeObject(this.accounts);
-                MessageBox.Show("Signed in");
-                File.WriteAllText(this.accountsFilePath, jsonString);
-                return;
-            }
-            MessageBox.Show("Error", "Failed To Sign In");
+            AccountManager.AddAccount(account);
+            MessageBox.Show("Success", "Signed in");
+        }
+        private void OnPasswordFieldChange(object sender, RoutedEventArgs args)
+        {
+            PasswordBox passwordField = (PasswordBox)sender;
+            int len = passwordField.Password.Length;
+            if (len < 6)
+                passwordField.BorderBrush = Brushes.Red;
+            else if (len < 8)
+                passwordField.BorderBrush = Brushes.Yellow;
+            else
+                passwordField.BorderBrush = Brushes.Green;
+
         }
     }
 }
